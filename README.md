@@ -29,30 +29,6 @@ npm start
 
 4. Open your browser and navigate to `http://localhost:8000`
 
-### Alternative methods
-
-You can also use one of these methods to serve the files:
-
-#### Using Python (Python 3)
-
-```
-python -m http.server
-```
-
-#### Using a global http-server package
-
-First, install the `http-server` package:
-
-```
-npm install -g http-server
-```
-
-Then run:
-
-```
-http-server
-```
-
 ## Controls
 
 - **Left-click + drag**: Rotate the view
