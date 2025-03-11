@@ -158,7 +158,8 @@ const planetData = [
         orbitSpeed: 0.002,
         texture: 'textures/jupiter.jpg',
         tilt: 3.13,
-        emissiveColor: 0x554433
+        emissiveColor: 0x554433,
+        hasRings: true
     },
     {
         name: 'Saturn',
@@ -179,7 +180,8 @@ const planetData = [
         orbitSpeed: 0.0004,
         texture: 'textures/uranus.jpg',
         tilt: 97.77,
-        emissiveColor: 0x115566
+        emissiveColor: 0x115566,
+        hasRings: true
     },
     {
         name: 'Neptune',
@@ -189,7 +191,8 @@ const planetData = [
         orbitSpeed: 0.0001,
         texture: 'textures/neptune.jpg',
         tilt: 28.32,
-        emissiveColor: 0x1133aa
+        emissiveColor: 0x1133aa,
+        hasRings: true
     }
 ];
 
@@ -292,6 +295,13 @@ function animate() {
             planetObj.moon.rotation.y += data.moonData.rotationSpeed * animationSpeed;
             planetObj.moonOrbit.rotation.y += data.moonData.orbitSpeed * animationSpeed;
         }
+
+        // Rotate Saturn's rings with the planet
+        if (planetObj.rings) {
+            // The rings should rotate with Saturn but at a slightly different speed
+            // This creates the effect of particles moving at different orbital velocities
+            planetObj.rings.rotation.y += data.rotationSpeed * 0.75 * animationSpeed;
+        }
     });
 
     controls.update();
@@ -349,23 +359,75 @@ function createPlanet(data) {
 
     // Add rings for Saturn
     if (data.hasRings) {
-        const ringGeometry = new THREE.RingGeometry(data.radius + 0.5, data.radius + 2, 64);
-        const ringMaterial = new THREE.MeshStandardMaterial({
-            map: textureLoader.load('textures/saturn_rings.jpg'),
-            side: THREE.DoubleSide,
+        // Create a particle system for Saturn's rings
+        const ringParticleCount = 5000;
+        const ringGeometry = new THREE.BufferGeometry();
+        const ringParticles = [];
+
+        // Inner and outer radius of the ring system
+        const innerRadius = data.radius + 0.5;
+        const outerRadius = data.radius + 2;
+
+        // Create particles in a disk shape
+        for (let i = 0; i < ringParticleCount; i++) {
+            // Random radius between inner and outer
+            const radius = THREE.MathUtils.randFloat(innerRadius, outerRadius);
+            // Random angle around the circle
+            const angle = THREE.MathUtils.randFloat(0, Math.PI * 2);
+
+            // Calculate position using polar coordinates
+            const x = radius * Math.cos(angle);
+            const z = radius * Math.sin(angle);
+
+            // Add some variation in the y position for thickness
+            const y = THREE.MathUtils.randFloatSpread(0.1);
+
+            ringParticles.push(x, y, z);
+        }
+
+        ringGeometry.setAttribute('position', new THREE.Float32BufferAttribute(ringParticles, 3));
+
+        // Create different sized particles for variety
+        const ringMaterial = new THREE.PointsMaterial({
+            color: 0xcccccc,
+            size: 0.01,
+            map: createParticleTexture(),
             transparent: true,
-            opacity: 0.9,
-            emissive: 0x222222,
-            emissiveIntensity: 0.2,
-            roughness: 0.6
+            opacity: 0.8,
+            depthWrite: false,
+            vertexColors: false
         });
-        const ring = new THREE.Mesh(ringGeometry, ringMaterial);
-        ring.rotation.x = Math.PI / 2;
-        planet.add(ring);
-        result.ring = ring;
+
+        const rings = new THREE.Points(ringGeometry, ringMaterial);
+        planet.add(rings);
+        result.rings = rings;
     }
 
     return result;
+}
+
+// Helper function to create a circular particle texture
+function createParticleTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 32;
+    canvas.height = 32;
+    const context = canvas.getContext('2d');
+
+    // Draw a circular gradient
+    const gradient = context.createRadialGradient(
+        canvas.width / 2, canvas.height / 2, 0,
+        canvas.width / 2, canvas.height / 2, canvas.width / 2
+    );
+    gradient.addColorStop(0, 'rgba(255,255,255,1)');
+    gradient.addColorStop(0.3, 'rgba(255,255,255,0.8)');
+    gradient.addColorStop(1, 'rgba(255,255,255,0)');
+
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+    return texture;
 }
 
 // Create stars background
