@@ -1,0 +1,17 @@
+{
+    "name": "3d-solar-system",
+    "version": "1.0.0",
+    "description": "A 3D visualization of our solar system built with Three.js",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "keywords": [
+        "three.js",
+        "solar-system",
+        "3d",
+        "visualization"
+    ],
+    "author": "",
+    "license": "MIT"
+}
