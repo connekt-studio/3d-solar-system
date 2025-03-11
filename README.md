@@ -17,17 +17,12 @@ A 3D visualization of our solar system built with Three.js.
 
 ## How to Run
 
-### Using the included Node.js server
+ Open `index.html` in your browser:
 
-1. Make sure you have Node.js installed
-2. Clone this repository
-3. Run the server:
+- You can either open the file directly by double-clicking it, or
+- Use a live server extension in your code editor (e.g., Live Server in VSCode).
 
-```
-npm start
-```
-
-4. Open your browser and navigate to `http://localhost:8000`
+Enjoy exploring the 3D Solar System!
 
 ## Controls
 
